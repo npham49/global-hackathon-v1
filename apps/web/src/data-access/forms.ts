@@ -95,3 +95,34 @@ export const deleteAllFormTokens = async (formId: string) => {
     where: { formId },
   });
 };
+
+export const getFormByToken = async (formId: string, token: string) => {
+  const formToken = await prisma.formToken.findFirst({
+    where: {
+      formId,
+      token,
+      expiry: { gt: new Date() },
+    },
+  });
+
+  if (!formToken) {
+    return null;
+  }
+
+  return prisma.feedbackForm.findUnique({
+    where: { id: formId },
+    select: { id: true, title: true, description: true, schema: true },
+  });
+};
+
+export const createSubmission = async (
+  formId: string,
+  data: Record<string, string | number>
+) => {
+  return prisma.submission.create({
+    data: {
+      formId,
+      data,
+    },
+  });
+};

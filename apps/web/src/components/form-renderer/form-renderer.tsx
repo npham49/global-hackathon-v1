@@ -16,12 +16,15 @@ export default function FormRenderer({
   setSubmission,
   handleSubmit,
   preview = false,
+  readOnly = false,
 }: FormRendererProps) {
   const [errors, setErrors] = useState<ValidationError[]>([]);
   const [showSubmittedData, setShowSubmittedData] = useState(false);
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (readOnly) return;
 
     const validationErrors = validateForm(schema, submission);
     if (validationErrors.length > 0) {
@@ -40,6 +43,7 @@ export default function FormRenderer({
   };
 
   const updateField = (key: string, value: string | number) => {
+    if (readOnly) return;
     setSubmission({ ...submission, [key]: value });
     // Clear error for this field
     setErrors(errors.filter((e) => e.key !== key));
@@ -94,17 +98,24 @@ export default function FormRenderer({
                   placeholder="Enter your answer"
                   rows={4}
                   className={error ? "border-destructive" : ""}
+                  disabled={readOnly}
+                  readOnly={readOnly}
                 />
               ) : (
                 <RadioGroup
                   value={String(submission[field.key] || "")}
                   onValueChange={(value) => updateField(field.key, parseInt(value))}
                   className={error ? "border border-destructive rounded-md p-3" : ""}
+                  disabled={readOnly}
                 >
                   <div className="flex flex-wrap gap-4">
                     {LIKERT_OPTIONS.map((option) => (
                       <div key={option.value} className="flex items-center space-x-2">
-                        <RadioGroupItem value={option.value} id={`${field.key}-${option.value}`} />
+                        <RadioGroupItem
+                          value={option.value}
+                          id={`${field.key}-${option.value}`}
+                          disabled={readOnly}
+                        />
                         <Label
                           htmlFor={`${field.key}-${option.value}`}
                           className="font-normal cursor-pointer"
@@ -122,9 +133,11 @@ export default function FormRenderer({
           );
         })}
 
-        <Button type="submit" className="w-full">
-          Submit
-        </Button>
+        {!readOnly && (
+          <Button type="submit" className="w-full">
+            Submit
+          </Button>
+        )}
       </form>
     </div>
   );

@@ -27,4 +27,5 @@ export interface FormRendererProps {
   setSubmission: (submission: Record<string, string | number>) => void;
   handleSubmit: () => void;
   preview?: boolean;
+  readOnly?: boolean;
 }
