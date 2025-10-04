@@ -6,12 +6,17 @@
   "scripts": {
     "verify": "node verify-submission.js",
     "start": "echo 'Add your start command here!'",
-    "test": "echo 'Add your test command here!'"
+    "test": "echo 'Add your test command here!'",
+    "dev": "npm run dev --workspace web"
   },
   "keywords": [
     "hackathon",
     "acta",
     "starter"
+  ],
+  "workspaces": [
+    "packages/*",
+    "apps/*"
   ],
   "author": "ACTA Studios",
   "license": "MIT",
@@ -20,4 +25,3 @@
     "url": "https://github.com/actastudios/global-hackathon-v1"
   }
 }
-

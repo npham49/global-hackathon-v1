@@ -1,0 +1,82 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model FeedbackForm {
+  id            String       @id @default(cuid())
+  schema        Json
+  title         String
+  description   String
+  createdBy     String
+  createdByUser User         @relation(name: "createdByUser", fields: [createdBy], references: [id])
+  updatedBy     String
+  updatedByUser User         @relation(name: "updatedByUser", fields: [updatedBy], references: [id])
+  updatedAt     DateTime     @updatedAt
+  createdAt     DateTime     @default(now())
+  submissions   Submission[]
+  tokens        FormToken[]
+  userForms     UserForm[]
+}
+
+// These can be used in the UI to unlock forms
+// should be encrypted, and have an expiry date
+// and generated with cuid using the first 8 letters
+model FormToken {
+  id            String       @id @default(cuid())
+  token         String       @unique
+  formId        String
+  form          FeedbackForm @relation(fields: [formId], references: [id])
+  expiry        DateTime
+  createdBy     String
+  createdByUser User         @relation(name: "createdByUser", fields: [createdBy], references: [id])
+  createdAt     DateTime     @default(now())
+}
+
+model Submission {
+  id        String       @id @default(cuid())
+  formId    String
+  form      FeedbackForm @relation(fields: [formId], references: [id])
+  data      Json
+  createdAt DateTime     @default(now())
+}
+
+// table to track users and their roles in the forms
+model UserForm {
+  id        String       @id @default(cuid())
+  userId    String
+  user      User         @relation(fields: [userId], references: [id])
+  formId    String
+  form      FeedbackForm @relation(fields: [formId], references: [id])
+  role      Role
+  createdAt DateTime     @default(now())
+
+  @@unique([userId, formId])
+}
+
+// most of the information should be manaaged by Clerk
+// id is the Clerk userId
+model User {
+  id            String         @id @default(cuid())
+  createdAt     DateTime       @default(now())
+  formsCreated  FeedbackForm[] @relation("createdByUser")
+  formsUpdated  FeedbackForm[] @relation("updatedByUser")
+  tokensCreated FormToken[]    @relation("createdByUser")
+  userForms     UserForm[]
+}
+
+enum Role {
+  ADMIN
+  EDITOR
+}
