@@ -21,17 +21,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
-
-// Create a simplified schema with only the fields we need
-// This avoids the massive recursive type that breaks IntelliSense
-// See: https://github.com/colinhacks/zod/issues/3233#issuecomment-2588511633
-const formSchema = z.object({
-  data: z.object({
-    title: z.string().min(1, "Title is required"),
-    description: z.string(),
-    schema: z.record(z.string(), z.unknown()),
-  }),
-});
+import { formSchema } from "@/lib/zod-schemas/forms";
 
 type FormValues = z.infer<typeof formSchema>;
 

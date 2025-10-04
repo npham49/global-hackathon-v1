@@ -40,3 +40,19 @@ export const createForm = async (
     return form;
   });
 };
+
+export const updateForm = async (
+  formId: string,
+  data: Prisma.FeedbackFormUpdateInput
+) => {
+  return prisma.feedbackForm.update({
+    where: { id: formId },
+    data,
+  });
+};
+
+export const getFormById = async (formId: string) => {
+  return prisma.feedbackForm.findUnique({
+    where: { id: formId },
+  });
+};
