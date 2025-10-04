@@ -56,3 +56,42 @@ export const getFormById = async (formId: string) => {
     where: { id: formId },
   });
 };
+
+export const getFormSubmissions = async (formId: string) => {
+  return prisma.submission.findMany({
+    where: { formId },
+    orderBy: { createdAt: "desc" },
+  });
+};
+
+export const getActiveFormToken = async (formId: string) => {
+  return prisma.formToken.findFirst({
+    where: {
+      formId,
+      expiry: { gt: new Date() },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+};
+
+export const createFormToken = async (
+  formId: string,
+  token: string,
+  expiry: Date,
+  createdBy: string
+) => {
+  return prisma.formToken.create({
+    data: {
+      token,
+      formId,
+      expiry,
+      createdBy,
+    },
+  });
+};
+
+export const deleteAllFormTokens = async (formId: string) => {
+  return prisma.formToken.deleteMany({
+    where: { formId },
+  });
+};
