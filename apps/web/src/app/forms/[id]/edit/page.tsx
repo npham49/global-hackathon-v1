@@ -25,6 +25,8 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { formUpdateSchema } from "@/lib/zod-schemas/forms";
 import FormBuilder from "@/components/form-builder";
+import FormRenderer from "@/components/form-renderer/form-renderer";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { FormSchema } from "@/types/form-builder-types";
 
 type FormValues = z.infer<typeof formUpdateSchema>;
@@ -37,6 +39,7 @@ export default function EditFormPage() {
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [formSchema, setFormSchema] = useState<FormSchema>({ form: [] });
+  const [submission, setSubmission] = useState<Record<string, string | number>>({});
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formUpdateSchema),
@@ -206,7 +209,6 @@ export default function EditFormPage() {
                   )}
                 />
 
-                <FormBuilder schema={formSchema} setSchema={setFormSchema} />
                 <div className="flex gap-3 justify-end">
                   <Button
                     type="button"
@@ -226,7 +228,34 @@ export default function EditFormPage() {
           </CardContent>
         </Card>
 
-        {/* Form Builder */}
+        {/* Form Builder and Preview Tabs */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Form Configuration</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Tabs defaultValue="builder" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="builder">Form Builder</TabsTrigger>
+                <TabsTrigger value="preview">Preview</TabsTrigger>
+              </TabsList>
+              <TabsContent value="builder" className="mt-6">
+                <FormBuilder schema={formSchema} setSchema={setFormSchema} />
+              </TabsContent>
+              <TabsContent value="preview" className="mt-6">
+                <FormRenderer
+                  schema={formSchema}
+                  submission={submission}
+                  setSubmission={setSubmission}
+                  handleSubmit={() => {
+                    toast.success("Form submitted! (Preview mode)");
+                  }}
+                  preview={true}
+                />
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

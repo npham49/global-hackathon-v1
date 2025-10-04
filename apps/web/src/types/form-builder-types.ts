@@ -15,3 +15,16 @@ export interface FormBuilderProps {
   schema: FormSchema;
   setSchema: (schema: FormSchema) => void;
 }
+
+export interface ValidationError {
+  key: string;
+  message: string;
+}
+
+export interface FormRendererProps {
+  schema: FormSchema;
+  submission: Record<string, string | number>;
+  setSubmission: (submission: Record<string, string | number>) => void;
+  handleSubmit: () => void;
+  preview?: boolean;
+}
