@@ -13,15 +13,35 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
+    "disableSourceOfProjectReferenceRedirect": true,
+    "disableSolutionSearching": true,
+    "disableReferencedProjectLoad": true,
+    "skipDefaultLibCheck": true,
     "plugins": [
       {
         "name": "next"
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
-    }
+      "@/*": ["./src/*"],
+      "@prisma/generated/*": ["./prisma/generated/*"]
+    },
+    "baseUrl": ".",
+    "typeRoots": ["../../node_modules/@types", "./node_modules/@types"]
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-  "exclude": ["node_modules"]
+  "include": [
+    "next-env.d.ts",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "prisma/generated",
+    ".next",
+    "dist",
+    "build",
+    "**/*.spec.ts",
+    "**/*.test.ts"
+  ]
 }

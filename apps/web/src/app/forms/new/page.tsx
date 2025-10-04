@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FeedbackFormCreateOneSchema } from "../../../../prisma/generated/schema/schemas";
+import { z } from "zod";
 import { createFormAction } from "@/app/actions/forms-actions";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,16 +21,26 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
-import type * as z from "zod";
 
-type FormValues = z.infer<typeof FeedbackFormCreateOneSchema>;
+// Create a simplified schema with only the fields we need
+// This avoids the massive recursive type that breaks IntelliSense
+// See: https://github.com/colinhacks/zod/issues/3233#issuecomment-2588511633
+const formSchema = z.object({
+  data: z.object({
+    title: z.string().min(1, "Title is required"),
+    description: z.string(),
+    schema: z.record(z.string(), z.unknown()),
+  }),
+});
+
+type FormValues = z.infer<typeof formSchema>;
 
 export default function NewFormPage() {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
   const form = useForm<FormValues>({
-    resolver: zodResolver(FeedbackFormCreateOneSchema),
+    resolver: zodResolver(formSchema),
     defaultValues: {
       data: {
         title: "",
@@ -43,6 +53,8 @@ export default function NewFormPage() {
   const onSubmit = (values: FormValues) => {
     startTransition(async () => {
       try {
+        // Use our simplified type that matches the server action's expected input
+        // This avoids the circular dependency while maintaining type safety
         const result = await createFormAction(values);
 
         if (result?.data) {
@@ -52,7 +64,7 @@ export default function NewFormPage() {
         } else if (result?.serverError) {
           toast.error(result.serverError);
         } else if (result?.validationErrors) {
-          toast.error("Validation failed. Please check your inputs.");
+          toast.error("Validation failed. Please check your inputs. " + JSON.stringify(result.validationErrors?.data));
         }
       } catch {
         toast.error("Failed to create form. Please try again.");
