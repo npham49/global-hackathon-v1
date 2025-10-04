@@ -3,6 +3,7 @@
 import { authActionClient } from "@/lib/safe-action";
 import { getUserById, createUser } from "@/data-access/users";
 import { cookies } from "next/headers";
+import { redirect, RedirectType } from "next/navigation";
 
 export const ensureUserExists = authActionClient.action(async ({ ctx }) => {
   const userId = ctx.user.id;
@@ -20,7 +21,7 @@ export const ensureUserExists = authActionClient.action(async ({ ctx }) => {
   return newUser;
 });
 
-export async function completeAuthCheck() {
+export async function completeAuthCheck(redirectTo: string = "/forms") {
   "use server";
 
   // Ensure user exists in database
@@ -32,6 +33,9 @@ export async function completeAuthCheck() {
     path: "/",
     maxAge: 86400, // 24 hours
   });
+
+  // Redirect user after cookie is set
+  redirect(redirectTo, RedirectType.replace);
 
   return { success: true };
 }

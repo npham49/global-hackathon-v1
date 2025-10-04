@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, Suspense } from "react";
+import { useEffect, Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { completeAuthCheck } from "../actions/user-actions";
@@ -8,18 +8,18 @@ import { completeAuthCheck } from "../actions/user-actions";
 function AuthCheckContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const [error, setError] = useState<boolean>(false);
   const redirectTo = searchParams.get("redirectTo") || "/forms";
 
   useEffect(() => {
     async function setupUser() {
       try {
-        await completeAuthCheck();
+        await completeAuthCheck(redirectTo);
         // Redirect after cookie is set
         router.push(redirectTo);
       } catch (error) {
         console.error("Error setting up user:", error);
-        // Redirect anyway to avoid infinite loop
-        router.push(redirectTo);
+        setError(true);
       }
     }
 
@@ -32,6 +32,11 @@ function AuthCheckContent() {
         <Loader2 className="h-12 w-12 animate-spin mx-auto mb-4 text-primary" />
         <h2 className="text-xl font-semibold mb-2">Setting up your account...</h2>
         <p className="text-muted-foreground">Please wait while we prepare everything for you.</p>
+        {error && (
+          <p className="text-red-500 mt-4">
+            An error occurred while setting up your account. Please try again.
+          </p>
+        )}
       </div>
     </div>
   );
