@@ -4,7 +4,9 @@ import { useState, useEffect } from "react";
 import FormRenderer from "@/components/form-renderer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle, CheckCircle2 } from "lucide-react";
+import { AlertCircle, CheckCircle2, Mic, Sparkles } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import TokenInputModal from "@/components/submission/token-input-modal";
 import { submitFormAction } from "@/app/actions/submission-actions";
 import type { FormSchema } from "@/types/form-builder-types";
@@ -110,7 +112,41 @@ export default function SubmitFormClient({
 
   // Show form
   return (
-    <div className="container mx-auto py-10">
+    <div className="container mx-auto py-10 space-y-6">
+      {/* Voice Agent Teaser */}
+      <Card className="border-primary/20 bg-primary/5">
+        <CardContent className="pt-6">
+          <div className="flex items-start gap-4">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+              <Mic className="h-6 w-6 text-primary" />
+            </div>
+            <div className="flex-1 space-y-2">
+              <div className="flex items-center gap-2">
+                <h3 className="font-semibold">AI Voice Agent Available</h3>
+                <Badge variant="secondary" className="text-xs">
+                  <Sparkles className="mr-1 h-3 w-3" />
+                  Coming Soon
+                </Badge>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Complete this survey naturally through conversation with our AI voice assistant.
+                This feature is currently in closed demo.
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled
+                className="mt-2"
+              >
+                <Mic className="mr-2 h-4 w-4" />
+                Start Voice Survey (Demo Only)
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Manual Form */}
       <Card>
         <CardHeader>
           <CardTitle>{form.title}</CardTitle>
