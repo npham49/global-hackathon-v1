@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import TokenInputModal from "@/components/submission/token-input-modal";
 import { submitFormAction } from "@/app/actions/submission-actions";
 import type { FormSchema } from "@/types/form-builder-types";
+import { useUser } from "@clerk/nextjs";
 
 type Form = {
   id: string;
@@ -27,6 +28,7 @@ export default function SubmitFormClient({
   token: string | null;
   form: Form | null;
 }) {
+  const { user } = useUser();
   const [submission, setSubmission] = useState<Record<string, string | number>>({});
   const [submitted, setSubmitted] = useState(false);
   const [alreadySubmitted, setAlreadySubmitted] = useState(false);
@@ -114,7 +116,7 @@ export default function SubmitFormClient({
   return (
     <div className="container mx-auto py-10 space-y-6">
       {/* Voice Agent Teaser */}
-      <Card className="border-primary/20 bg-primary/5">
+      {user && (<Card className="border-primary/20 bg-primary/5">
         <CardContent className="pt-6">
           <div className="flex items-start gap-4">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-primary/10">
@@ -144,7 +146,7 @@ export default function SubmitFormClient({
             </div>
           </div>
         </CardContent>
-      </Card>
+      </Card>)}
 
       {/* Manual Form */}
       <Card>
