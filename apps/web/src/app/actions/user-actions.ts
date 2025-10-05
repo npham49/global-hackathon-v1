@@ -22,8 +22,6 @@ export const ensureUserExists = authActionClient.action(async ({ ctx }) => {
 });
 
 export async function completeAuthCheck(redirectTo: string = "/forms") {
-  "use server";
-
   // Ensure user exists in database
   await ensureUserExists();
 

@@ -49,7 +49,7 @@ export default function NewFormPage() {
 
         if (result?.data) {
           toast.success("Form created successfully!");
-          router.push("/forms");
+          router.push("/forms" + `/${result.data.id}/edit`);
           router.refresh();
         } else if (result?.serverError) {
           toast.error(result.serverError);
