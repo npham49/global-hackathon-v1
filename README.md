@@ -11,6 +11,8 @@ Surveys can be tedious and often yield low engagement rates. SurveyAI transforms
 The app runs off Next.js 15 with a React frontend. It uses Clerk for authentication and PostgreSQL with Prisma for database management. The core feature is the voice agent powered by OpenAI's Realtime API, enabling users to complete surveys through spoken dialogue.
 The voice agent guides users through the survey questions, captures their responses, and ensures a smooth conversational flow. This approach not only enhances user engagement but also improves the quality of feedback collected.
 
+FormBuilder and renderer are designed similar to FormIO, using JSON schema to define forms and render them dynamically. hello-pangea's dnd is used for drag-and-drop functionality in the form builder.
+
 ### Key Features
 
 - **Voice Agent**: Users can complete surveys by speaking, making the process faster and more natural.
