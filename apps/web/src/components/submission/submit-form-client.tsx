@@ -11,7 +11,9 @@ import TokenInputModal from "@/components/submission/token-input-modal";
 import { submitFormAction } from "@/app/actions/submission-actions";
 import type { FormSchema } from "@/types/form-builder-types";
 import { useUser } from "@clerk/nextjs";
+
 import { useVoiceAgent } from "@/hooks/use-voice-agent";
+import Link from "next/link";
 
 type Form = {
   id: string;
@@ -157,7 +159,7 @@ export default function SubmitFormClient({
   return (
     <div className="container mx-auto py-10 space-y-6">
       {/* Voice Agent */}
-      {user && (
+      {user ? (
         <Card className={`border-primary/20 ${isConnected ? 'bg-green-50 dark:bg-green-950/20' : 'bg-primary/5'}`}>
           <CardContent className="pt-6">
             <div className="flex items-start gap-4">
@@ -226,6 +228,27 @@ export default function SubmitFormClient({
                     ))}
                   </div>
                 )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <Card className="border-warning/20 bg-warning/5">
+          <CardContent className="pt-6">
+            <div className="flex items-start gap-4">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-warning/10">
+                <AlertCircle className="h-6 w-6 text-warning" />
+              </div>
+              <div className="flex-1 space-y-2">
+                <h3 className="font-semibold">Voice Agent Unavailable</h3>
+                <p className="text-sm text-muted-foreground">
+                  Please sign in to use the voice agent feature.
+                </p>
+                <Link href="/sign-in" className="inline-block">
+                  <Button variant="default" size="sm">
+                    Sign In
+                  </Button>
+                </Link>
               </div>
             </div>
           </CardContent>
