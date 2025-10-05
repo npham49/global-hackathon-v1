@@ -33,18 +33,48 @@ export default function SubmitFormClient({
   const [submitted, setSubmitted] = useState(false);
   const [alreadySubmitted, setAlreadySubmitted] = useState(false);
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (submissionData?: Record<string, string | number>) => {
     if (!token || !form || alreadySubmitted) return;
+    // If no submission data provided, try to get it from localStorage
+    let finalSubmissionData = submissionData;
+
+    if (!finalSubmissionData || Object.keys(finalSubmissionData).length === 0) {
+      try {
+        const localStorageData = localStorage.getItem("voice_agent_submission");
+        if (localStorageData) {
+          finalSubmissionData = JSON.parse(localStorageData);
+          console.log("[handleSubmit] Using data from localStorage:", finalSubmissionData);
+        }
+      } catch (err) {
+        console.error("[handleSubmit] Error reading localStorage:", err);
+      }
+    }
 
     try {
-      const result = await submitFormAction({ formId, token, data: submission });
+      // Ensure we have data to submit
+      if (!finalSubmissionData || Object.keys(finalSubmissionData).length === 0) {
+        console.error("[handleSubmit] No submission data available");
+        return;
+      }
+
+      const result = await submitFormAction({ formId, token, data: finalSubmissionData });
+
       if (result?.data?.success) {
         // Set cookie to prevent resubmission (expires in 1 year)
         const expiryDate = new Date();
         expiryDate.setFullYear(expiryDate.getFullYear() + 1);
         document.cookie = `form_submitted_${formId}_token_${token}=true; path=/; expires=${expiryDate.toUTCString()}; SameSite=Strict`;
 
+        // Clear localStorage upon successful submission
+        try {
+          localStorage.removeItem("voice_agent_submission");
+        } catch (err) {
+          console.error("[handleSubmit] Error clearing localStorage:", err);
+        }
+
         setSubmitted(true);
+      } else {
+        console.error("Form submission failed:", result);
       }
     } catch (error) {
       console.error("Submission error:", error);
@@ -213,7 +243,7 @@ export default function SubmitFormClient({
             schema={form.schema as FormSchema}
             submission={submission}
             setSubmission={setSubmission}
-            handleSubmit={handleSubmit}
+            handleSubmit={() => handleSubmit(submission)}
           />
         </CardContent>
       </Card>

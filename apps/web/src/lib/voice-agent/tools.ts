@@ -106,7 +106,9 @@ export function createValidateSubmissionTool(
  * Creates the submit_form tool definition for the voice agent
  */
 export function createSubmitFormTool(
-  handleSubmit: () => Promise<void>,
+  handleSubmit: (
+    submissionData?: Record<string, string | number>
+  ) => Promise<void>,
   disconnect: () => void
 ) {
   return {
@@ -124,7 +126,6 @@ export function createSubmitFormTool(
     invoke: async () => {
       // Execute submission logic directly in invoke
       try {
-        console.log("[Tool] submit_form - submitting...");
         await handleSubmit();
         console.log("[Tool] Form submitted successfully!");
 
