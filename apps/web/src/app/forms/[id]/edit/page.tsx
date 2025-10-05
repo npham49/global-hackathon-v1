@@ -109,7 +109,7 @@ export default function EditFormPage() {
 
         if (result?.data) {
           toast.success("Form updated successfully!");
-          router.push("/forms");
+          router.push("/forms/" + formId);
           router.refresh();
         } else if (result?.serverError) {
           toast.error(result.serverError);
@@ -155,13 +155,33 @@ export default function EditFormPage() {
 
   return (
     <div className="container mx-auto py-10">
-      <Link
-        href="/forms"
-        className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-6"
-      >
-        <ArrowLeft className="mr-2 h-4 w-4" />
-        Back to Forms
-      </Link>
+      <div className="flex items-center justify-between mb-6">
+        <Link
+          href="/forms"
+          className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground"
+        >
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back to Forms
+        </Link>
+
+        <div className="flex gap-3">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => router.back()}
+            disabled={isPending}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={form.handleSubmit(onSubmit)}
+            disabled={isPending}
+          >
+            {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Update Form
+          </Button>
+        </div>
+      </div>
 
       <div className="space-y-6">
         {/* Form Details */}
@@ -171,7 +191,7 @@ export default function EditFormPage() {
           </CardHeader>
           <CardContent>
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <div className="space-y-6">
                 <FormField
                   control={form.control}
                   name="data.title"
@@ -208,22 +228,7 @@ export default function EditFormPage() {
                     </FormItem>
                   )}
                 />
-
-                <div className="flex gap-3 justify-end">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => router.back()}
-                    disabled={isPending}
-                  >
-                    Cancel
-                  </Button>
-                  <Button type="submit" disabled={isPending}>
-                    {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    Update Form
-                  </Button>
-                </div>
-              </form>
+              </div>
             </Form>
           </CardContent>
         </Card>

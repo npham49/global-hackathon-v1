@@ -21,6 +21,7 @@ export const createFormAction = authActionClient
   .action(async ({ parsedInput, ctx }) => {
     const form = await createForm(ctx.user.id, {
       ...parsedInput.data,
+      schema: parsedInput.data.schema || {},
       createdByUser: {
         connect: { id: ctx.user.id },
       },
