@@ -7,7 +7,6 @@ import {
 } from "@/lib/voice-agent/schema-template";
 import {
   createUpdateSubmissionTool,
-  createValidateSubmissionTool,
   createSubmitFormTool,
 } from "@/lib/voice-agent/tools";
 import { createVoiceAgent } from "@/lib/voice-agent/agent-factory";
@@ -15,9 +14,14 @@ import { type Message } from "@/lib/voice-agent/history-processor";
 
 export type { Message };
 
+// LocalStorage key for storing voice agent submission data
+const VOICE_SUBMISSION_KEY = "voice_agent_submission";
+
 export function useVoiceAgent(
   schema: FormSchema,
-  handleSubmit: () => Promise<void>
+  handleSubmit: (
+    submissionData?: Record<string, string | number>
+  ) => Promise<void>
 ) {
   const [isConnected, setIsConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
@@ -40,6 +44,12 @@ export function useVoiceAgent(
       setMessages([]);
       // Clear processed tool calls for fresh session
       processedToolCallsRef.current.clear();
+      // Clear localStorage
+      try {
+        localStorage.removeItem(VOICE_SUBMISSION_KEY);
+      } catch (err) {
+        console.error("[useVoiceAgent] Error clearing localStorage:", err);
+      }
     }
   }, []);
 
@@ -48,6 +58,13 @@ export function useVoiceAgent(
     try {
       setIsConnecting(true);
       setError(null);
+
+      // Initialize localStorage with empty submission
+      try {
+        localStorage.setItem(VOICE_SUBMISSION_KEY, JSON.stringify({}));
+      } catch (err) {
+        console.error("[useVoiceAgent] Error initializing localStorage:", err);
+      }
 
       // Fetch token
       console.log("📡 [useVoiceAgent] Fetching token...");
@@ -61,10 +78,10 @@ export function useVoiceAgent(
 
       // Create tools
       const updateSubmissionTool = createUpdateSubmissionTool(setSubmission);
-      const validateSubmissionTool = createValidateSubmissionTool(
-        schema,
-        () => submissionRef.current
-      );
+      // const validateSubmissionTool = createValidateSubmissionTool(
+      //   schema,
+      //   () => submissionRef.current
+      // );
       const submitFormTool = createSubmitFormTool(handleSubmit, disconnect);
 
       // Create agent
@@ -72,7 +89,7 @@ export function useVoiceAgent(
       console.log("📋 [useVoiceAgent] Schema:", schemaInstructions);
       const agent = createVoiceAgent(schemaInstructions, [
         updateSubmissionTool,
-        validateSubmissionTool,
+        // validateSubmissionTool,
         submitFormTool,
       ]);
       const session = new RealtimeSession(agent, {
@@ -94,12 +111,57 @@ export function useVoiceAgent(
 
       // Listen to history updates for messages and tool calls
       session.on("history_updated", (history) => {
-        console.log("� [useVoiceAgent] History updated");
+        console.log("📊 [useVoiceAgent] History updated");
         console.log(history);
         if (!Array.isArray(history)) return;
-        const newMessages: Message[] = [];
 
+        // Always rebuild messages from entire history (for display purposes)
+        const allMessages: Message[] = [];
         history.forEach((item: unknown) => {
+          const historyItem = item as {
+            type?: string;
+            role?: string;
+            content?: Array<{
+              type?: string;
+              transcript?: string;
+              text?: string;
+            }>;
+          };
+
+          if (
+            historyItem.type === "message" &&
+            historyItem.role &&
+            historyItem.content
+          ) {
+            let textContent = "";
+
+            for (const contentItem of historyItem.content) {
+              if (contentItem.transcript) {
+                textContent = contentItem.transcript;
+                break;
+              } else if (contentItem.text) {
+                textContent = contentItem.text;
+                break;
+              }
+            }
+
+            if (textContent) {
+              allMessages.push({
+                role: historyItem.role,
+                content: textContent,
+              });
+            }
+          }
+        });
+
+        setMessages(allMessages);
+
+        // Process tool calls from entire history (duplicates are filtered)
+        console.log(
+          `[useVoiceAgent] Scanning ${history.length} history items for tool calls`
+        );
+
+        history.forEach((item: unknown, index: number) => {
           const historyItem = item as {
             type?: string;
             role?: string;
@@ -119,14 +181,6 @@ export function useVoiceAgent(
             historyItem.name &&
             historyItem.arguments
           ) {
-            console.log(
-              `[useVoiceAgent] Tool call detected: ${historyItem.name}`
-            );
-            console.log(
-              `[useVoiceAgent] Tool arguments:`,
-              historyItem.arguments
-            );
-
             try {
               // Handle update_submission
               if (historyItem.name === "update_submission") {
@@ -135,16 +189,21 @@ export function useVoiceAgent(
                   value: string;
                 };
 
-                // Create a unique identifier for this tool call
-                const toolCallId = `${historyItem.name}_${args.key}_${args.value}`;
+                // Create a unique identifier based on the exact arguments only
+                const toolCallId = `${historyItem.name}_${JSON.stringify(args)}`;
 
                 // Skip if we've already processed this exact tool call
                 if (processedToolCallsRef.current.has(toolCallId)) {
-                  console.log(
-                    `[useVoiceAgent] Skipping duplicate tool call: ${toolCallId}`
-                  );
                   return;
                 }
+
+                console.log(
+                  `[useVoiceAgent] Tool call detected at index ${index}: ${historyItem.name}`
+                );
+                console.log(
+                  `[useVoiceAgent] Tool arguments:`,
+                  historyItem.arguments
+                );
 
                 // Mark as processed
                 processedToolCallsRef.current.add(toolCallId);
@@ -165,8 +224,22 @@ export function useVoiceAgent(
                     ...prev,
                     [args.key]: processedValue,
                   };
-                  // Also update the ref so validate/submit tools have current data
+                  // Update the ref so validate/submit tools have current data
                   submissionRef.current = updated;
+
+                  // Save to localStorage for the submit tool to access
+                  try {
+                    localStorage.setItem(
+                      VOICE_SUBMISSION_KEY,
+                      JSON.stringify(updated)
+                    );
+                  } catch (err) {
+                    console.error(
+                      "[useVoiceAgent] Error saving to localStorage:",
+                      err
+                    );
+                  }
+
                   return updated;
                 });
 
@@ -177,41 +250,11 @@ export function useVoiceAgent(
                   processedValue
                 );
               }
-              // validate_submission and submit_form are now handled by their invoke methods
             } catch (err) {
               console.error("[useVoiceAgent] Error processing tool call:", err);
             }
           }
-
-          // Handle regular messages
-          if (
-            historyItem.type === "message" &&
-            historyItem.role &&
-            historyItem.content
-          ) {
-            // Extract text from content array
-            let textContent = "";
-
-            for (const contentItem of historyItem.content) {
-              if (contentItem.transcript) {
-                textContent = contentItem.transcript;
-                break;
-              } else if (contentItem.text) {
-                textContent = contentItem.text;
-                break;
-              }
-            }
-
-            if (textContent) {
-              newMessages.push({
-                role: historyItem.role,
-                content: textContent,
-              });
-            }
-          }
         });
-
-        setMessages(newMessages);
       });
 
       // Error handler
