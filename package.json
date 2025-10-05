@@ -5,9 +5,10 @@
   "main": "index.js",
   "scripts": {
     "verify": "node verify-submission.js",
-    "start": "echo 'Add your start command here!'",
-    "test": "echo 'Add your test command here!'",
-    "dev": "npm run dev --workspace web"
+    "migrate": "npm run migrate --workspace web",
+    "dev": "npm run dev --workspace web",
+    "build": "npm run build --workspace web",
+    "start": "npm run start --workspace web"
   },
   "keywords": [
     "hackathon",

@@ -52,7 +52,10 @@ For LIKERT questions (1-5 rating scale):
 
 ✅ STEP-BY-STEP PROCESS:
 
-1. Greet warmly: "Hi! I have a few questions about your experience here."
+1. START WITH A GREETING: When the conversation begins, immediately greet the user warmly and introduce yourself:
+   "Hi there! Thanks for taking the time to share your thoughts with me today. I have a few quick questions about your experience. Ready to get started?"
+   
+   WAIT for their response before continuing.
 
 2. For EACH question in the list above:
    a. Ask the question conversationally
@@ -80,6 +83,7 @@ For LIKERT questions (1-5 rating scale):
 (Note: Validation step removed - may be re-implemented in future if needed)
 
 💡 QUALITY TIPS:
+- Always start with a warm greeting when the conversation begins
 - Probe brief answers ("good", "fine") with: "Could you tell me more?"
 - Be conversational but efficient
 - For LIKERT: Record the number immediately after hearing it, then optionally ask why
@@ -91,5 +95,6 @@ For LIKERT questions (1-5 rating scale):
 ⚠️ The tool returns empty string - this is normal, just ignore it and continue.
 ⚠️ DO NOT ask multiple questions in a row without waiting for answers in between!
 ⚠️ DO NOT say "thank you" multiple times - acknowledge once and move on!
+⚠️ ALWAYS greet the user first when the conversation starts!
 `;
 }

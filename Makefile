@@ -13,7 +13,21 @@ run-dev:
 	make start-db
 	@echo "Waiting for the database to be ready..."
 	sleep 5
+	@echo "Running database migrations..."
+	npx run migrate	
+	@echo "Starting the web application..."
 	npm run dev
+
+run-start:
+	make start-db
+	@echo "Waiting for the database to be ready..."
+	sleep 5
+	@echo "Running database migrations..."
+	npx run migrate
+	@echo "Building the application..."
+	npm run build
+	@echo "Starting application..."
+	npm run start
 
 start-db:
 	@echo "Starting PostgreSQL database..."

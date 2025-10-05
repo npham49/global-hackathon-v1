@@ -210,9 +210,9 @@ export default function SubmitFormClient({
                   )}
                 </div>
                 {messages.length > 0 && (
-                  <div className="mt-4 space-y-2 max-h-48 overflow-y-auto">
+                  <div className="mt-4 space-y-2 max-h-auto overflow-y-auto">
                     <p className="text-xs font-semibold text-muted-foreground">Conversation:</p>
-                    {messages.slice(-5).map((msg, idx) => (
+                    {messages.slice(-8).map((msg, idx) => (
                       <div
                         key={idx}
                         className={`text-xs p-2 rounded ${msg.role === "user"
