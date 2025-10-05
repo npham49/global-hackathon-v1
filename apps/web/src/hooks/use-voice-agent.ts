@@ -270,6 +270,16 @@ export function useVoiceAgent(
 
       setIsConnected(true);
       setIsConnecting(false);
+
+      // Trigger AI to greet the user and ask the first question
+      // Use transport layer directly to trigger a response without user input
+      // Add a slight delay to prevent audio clipping
+      setTimeout(() => {
+        console.log("👋 [useVoiceAgent] Triggering initial greeting...");
+        session.transport.sendEvent({
+          type: "response.create",
+        });
+      }, 250);
     } catch (err) {
       console.error("❌ [useVoiceAgent] Error:", err);
       setError(err instanceof Error ? err.message : "Connection failed");
