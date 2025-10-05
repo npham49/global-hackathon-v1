@@ -83,7 +83,7 @@ export default async function FormDetailPage({ params }: { params: Promise<{ id:
               </Alert>
             )}
             <div className="flex gap-2">
-              <TokenRefreshButton formId={id} />
+              <TokenRefreshButton formId={id} hasToken={!!activeToken && !isTokenExpired} />
               <DisableSubmissionsButton formId={id} />
             </div>
           </CardContent>
