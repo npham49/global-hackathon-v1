@@ -17,6 +17,18 @@ The voice agent guides users through the survey questions, captures their respon
 - **AI Probing**: The agent can ask follow-up questions to gather more detailed responses
 - **Manager Dashboard**: Create and manage surveys, generate access tokens, and view submissions.
 
+### CI/CD
+
+This repository uses Vercel for continuous deployment. Every push to the main branch triggers a new deployment, ensuring that the latest features and fixes are always live. All pushes to other branches create preview deployments for testing.
+
+### Leftover bugs:
+
+- Sometimes the voice agent may misinterpret responses, leading to incorrect data capture.
+- Sometimes the voice agent will not submit? so you have to press the button manually.
+- The UI could use more polish and better responsiveness on mobile devices.
+- More comprehensive error handling and user feedback mechanisms are needed.
+- Tests are missing.
+
 ### How to run locally
 
 #### Prerequisites
